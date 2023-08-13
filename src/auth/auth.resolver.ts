@@ -25,6 +25,14 @@ export class AuthResolver {
     return this.authService.signIn(signInInput)
   }
 
+  @Mutation(() => Boolean)
+  async verifyAccount(
+    @CustomerID() customerId: string,
+    @Args('activationCode') activationCode: string
+  ) {
+    return this.authService.verifyAccount(customerId, activationCode)
+  }
+
   @Public()
   @UseGuards(RefreshTokenGuard)
   @Mutation(() => Auth)

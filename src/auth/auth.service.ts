@@ -21,6 +21,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
+    await this.generateActivationCode(customerId);
     const { accessToken, refreshToken} = await this.generateTokens(customerId, email);
 
     return { accessToken, refreshToken }
@@ -40,6 +41,27 @@ export class AuthService {
     return { accessToken, refreshToken }
   }
 
+  async verifyAccount(customerId: string, activationCode: string) {
+    const { activationCode: hashedCode, isVerified } = await this.customerService.findOne({ id: customerId });
+
+    if (isVerified) {
+      throw new BadRequestException('Account already verified');
+    }
+
+    const isActivationCodeValid = await verify(hashedCode, activationCode);
+
+    if (!isActivationCodeValid) {
+      throw new BadRequestException('Invalid activation code');
+    }
+
+    await this.customerService.update(
+      { id: customerId }, 
+      { isVerified: true, activationCode: null }
+    );
+
+    return true;
+  }
+
   async refreshTokens(customerId: string, token: string) {
     const { email, refreshToken: hashedRefreshToken } = await this.customerService.findOne({ id: customerId });
     const isRefreshTokenValid = await verify(hashedRefreshToken, token);
@@ -51,6 +73,18 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.generateTokens(customerId, email);
 
     return { accessToken, refreshToken }
+  }
+
+  private async generateActivationCode(customerId: string) {
+    const activationCode = Math.random().toString(36).substring(2);
+    const hashedActivationCode = await hash(activationCode);
+
+    await this.customerService.update(
+      { id: customerId },
+      { activationCode: hashedActivationCode }
+    );
+
+    console.log('Activation code:', activationCode);
   }
 
   private async generateTokens(customerId: string, email: string) {
