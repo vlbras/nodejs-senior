@@ -11,6 +11,7 @@ type Customer {
   """Date and time when the object was updated last time."""
   updatedAt: Timestamp!
   email: String!
+  role: Role!
 }
 
 """
@@ -18,8 +19,19 @@ type Customer {
 """
 scalar Timestamp
 
+enum Role {
+  ADMIN
+  USER
+}
+
+type Auth {
+  accessToken: String!
+  refreshToken: String!
+}
+
 type Query {
   customers(data: GetCustomerInput!): [Customer!]!
+  customer(data: GetCustomerInputIdEmail!): Customer!
 }
 
 input GetCustomerInput {
@@ -34,4 +46,36 @@ input WhereCustomerInput {
   email: String
   createdAt: Timestamp
   updatedAt: Timestamp
+}
+
+input GetCustomerInputIdEmail {
+  id: String
+  email: String
+}
+
+type Mutation {
+  updateCustomer(data: GetCustomerInputIdEmail!, updateCustomerInput: UpdateCustomerInput!): Customer!
+  deleteCustomer(data: GetCustomerInputIdEmail!): Customer!
+  signUp(signUpInput: SignUpInput!): Auth!
+  signIn(signInInput: SignInInput!): Auth!
+  verifyAccount(activationCode: String!): Boolean!
+  refreshTokens: Auth!
+}
+
+input UpdateCustomerInput {
+  email: String
+  password: String
+  activationCode: String
+  isVerified: String
+  refreshToken: String
+}
+
+input SignUpInput {
+  email: String!
+  password: String!
+}
+
+input SignInInput {
+  email: String!
+  password: String!
 }
