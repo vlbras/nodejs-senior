@@ -13,16 +13,19 @@ import { CustomerID } from '../lib/decorators/customer-id.decorator';
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Mutation(() => Auth)
   async signUp(@Args('signUpInput') signUpInput: SignUpInput) {
     return this.authService.signUp(signUpInput)
   }
 
+  @Public()
   @Mutation(() => Auth)
   async signIn(@Args('signInInput') signInInput: SignInInput) {
     return this.authService.signIn(signInInput)
   }
 
+  @Public()
   @UseGuards(RefreshTokenGuard)
   @Mutation(() => Auth)
   async refreshTokens(
