@@ -2,13 +2,16 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { Prisma } from '@prisma/client';
 
 @InputType()
-export class WhereCustomerInput {
+export class GetCustomerInputIdEmail {
   @Field(() => String, { nullable: true })
   id?: string;
 
   @Field(() => String, { nullable: true })
   email?: string;
+}
 
+@InputType()
+export class WhereCustomerInput extends GetCustomerInputIdEmail {
   @Field(() => Date, { nullable: true })
   createdAt?: Date;
 

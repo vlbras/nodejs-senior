@@ -1,7 +1,8 @@
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Customer } from 'lib/entities/customer.entity';
 import { CustomerService } from './customer.service';
-import { GetCustomerInput } from './dto/customer.input';
+import { GetCustomerInput, GetCustomerInputIdEmail } from './dto/customer.input';
+import { UpdateCustomerInput } from './dto/update-customer.input';
 
 @Resolver(() => Customer)
 export class CustomerResolver {
@@ -10,5 +11,20 @@ export class CustomerResolver {
   @Query(() => [Customer])
   async customers(@Args('data') { skip, take, where }: GetCustomerInput) {
     return this.customerService.findAll({ skip, take, where });
+  }
+
+  @Query(() => Customer)
+  async customer(@Args('data') param : GetCustomerInputIdEmail) {
+    return this.customerService.findOne(param);
+  }
+
+  @Mutation(() => Customer)
+  async updateCustomer(@Args('data') param: GetCustomerInputIdEmail, @Args('updateCustomerInput') updateCustomerInput: UpdateCustomerInput) {
+    return this.customerService.update(param, updateCustomerInput);
+  }
+
+  @Mutation(() => Customer)
+  async deleteCustomer(@Args('data') param: GetCustomerInputIdEmail) {
+    return this.customerService.delete(param);
   }
 }
